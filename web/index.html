@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Open Raster Timing Marker</title>
+    <style>
+      :root { color-scheme: dark; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; background: #111315; color: #e8eaed; display: grid; place-items: center; }
+      main { width: min(920px, calc(100vw - 32px)); }
+      header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+      h1 { margin: 0; font: 600 18px/1.2 system-ui, sans-serif; letter-spacing: 0; }
+      small { color: #9299a1; }
+      .stage { display: grid; grid-template-columns: minmax(0, 640px) 220px; gap: 12px; align-items: start; }
+      canvas { display: block; width: 100%; height: auto; border: 1px solid #34383d; background: #202428; image-rendering: pixelated; }
+      dl { margin: 0; border: 1px solid #34383d; background: #181b1e; }
+      div.metric { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 10px; border-bottom: 1px solid #2b2f33; }
+      div.metric:last-child { border-bottom: 0; }
+      dt { color: #9299a1; }
+      dd { margin: 0; color: #f4f5f6; }
+      .ok { color: #65d490; }
+      .fail { color: #ff7b72; }
+      @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header><h1>Open Raster Timing Marker</h1><small>ORTM v0 reference demo</small></header>
+      <section class="stage">
+        <canvas id="frame" width="640" height="480"></canvas>
+        <dl>
+          <div class="metric"><dt>Status</dt><dd id="status">starting</dd></div>
+          <div class="metric"><dt>Frame</dt><dd id="sequence">--</dd></div>
+          <div class="metric"><dt>Timestamp</dt><dd id="timestamp">--</dd></div>
+          <div class="metric"><dt>Age</dt><dd id="latency">--</dd></div>
+          <div class="metric"><dt>Contrast</dt><dd id="contrast">--</dd></div>
+          <div class="metric"><dt>Decode</dt><dd id="decodeCost">--</dd></div>
+        </dl>
+      </section>
+    </main>
+    <script type="module">
+      import { ENCODED_CELLS, encodeGrid } from '../src/js/ortm.js';
+      import { DEFAULT_RASTER_PROFILE, buildReadRoi, decodeRgbaImage } from '../src/js/raster.js';
+
+      const canvas = document.querySelector('#frame');
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      const fields = Object.fromEntries(
+        ['status', 'sequence', 'timestamp', 'latency', 'contrast', 'decodeCost'].map((id) => [id, document.querySelector(`#${id}`)]),
+      );
+      const profile = DEFAULT_RASTER_PROFILE;
+      const renderProfile = { backgroundAlpha: 0.15, cellAlpha: 0.65 };
+      const roi = buildReadRoi(profile);
+      let frameSeq = 0;
+      let lastFrameAt = 0;
+      let lastDecodeAt = 0;
+
+      function drawMarker(timestampMs) {
+        const grid = encodeGrid(frameSeq, timestampMs >>> 0);
+        const boxSize = 32 * profile.cell + profile.padding * 2;
+        context.fillStyle = `rgba(255,255,255,${renderProfile.backgroundAlpha})`;
+        context.fillRect(profile.x, profile.y, boxSize, boxSize);
+        const originX = profile.x + profile.padding;
+        const originY = profile.y + profile.padding;
+        for (const [row, col] of ENCODED_CELLS) {
+          context.fillStyle = grid[row][col]
+            ? `rgba(0,0,0,${renderProfile.cellAlpha})`
+            : `rgba(255,255,255,${renderProfile.cellAlpha})`;
+          context.fillRect(originX + col * profile.cell, originY + row * profile.cell, profile.cell, profile.cell);
+        }
+        context.strokeStyle = '#000';
+        context.lineWidth = 2;
+        context.strokeRect(profile.x, profile.y, boxSize, boxSize);
+      }
+
+      function drawScene(now) {
+        const hue = (now / 40) % 360;
+        context.fillStyle = `hsl(${hue} 35% 24%)`;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = 'rgba(255,255,255,.09)';
+        for (let x = -480; x < 640; x += 32) context.fillRect((x + now / 12) % 1120, 0, 12, 480);
+        const timestampMs = Date.now();
+        drawMarker(timestampMs);
+        frameSeq = (frameSeq + 1) & 0xffff;
+      }
+
+      function decode() {
+        const started = performance.now();
+        const imageData = context.getImageData(roi.x, roi.y, roi.width, roi.height);
+        const result = decodeRgbaImage(imageData, canvas.width, canvas.height, Date.now(), {
+          profile,
+          roiX: roi.x,
+          roiY: roi.y,
+        });
+        fields.decodeCost.textContent = `${(performance.now() - started).toFixed(2)} ms`;
+        fields.status.textContent = result.ok ? 'CRC valid' : result.reason;
+        fields.status.className = result.ok ? 'ok' : 'fail';
+        if (!result.ok) return;
+        fields.sequence.textContent = result.frame_seq;
+        fields.timestamp.textContent = result.timestamp_ms;
+        fields.latency.textContent = `${result.latency_ms} ms`;
+        fields.contrast.textContent = result.contrast.toFixed(1);
+      }
+
+      function tick(now) {
+        if (now - lastFrameAt >= 1000 / 30) {
+          drawScene(now);
+          lastFrameAt = now;
+        }
+        if (now - lastDecodeAt >= 200) {
+          decode();
+          lastDecodeAt = now;
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use ORTM in academic work, please cite this software."
+title: "Open Raster Timing Marker (ORTM)"
+type: software
+version: 0.1.0
+date-released: 2026-07-21
+license: MIT
+authors:
+  - name: "ORTM contributors"
