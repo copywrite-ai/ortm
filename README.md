@@ -48,6 +48,12 @@ must be calibrated against an external optical reference.
 - `docs/tunnel-migration.md`: safe migration path for the original WebRTC lab.
 - `examples/gstreamer_testsrc.py`: real GStreamer smoke-test pipeline.
 
+## Integration guides
+
+- [中文：GStreamer 发送端、Web 前端与 BFF 接入指南](docs/frontend-backend-integration.zh-CN.md)
+- [GStreamer integration](integrations/gstreamer/README.md)
+- [Benchmark plan](docs/benchmark-plan.md)
+
 ## Run the conformance suite
 
 Requirements: Python 3.10+ and Node.js 20+.
