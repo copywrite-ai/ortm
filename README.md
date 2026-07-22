@@ -76,6 +76,14 @@ python3 -m http.server 8080
 
 Then open `http://127.0.0.1:8080/web/`.
 
+Run the offline FFmpeg/libx264 codec benchmark (no network required):
+
+```bash
+make benchmark-smoke
+```
+
+See `benchmarks/README.md` for the output schema and artifact options.
+
 Generated vectors are committed. A normal implementation change must not alter
 them.
 

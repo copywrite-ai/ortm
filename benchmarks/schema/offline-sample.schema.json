@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/copywrite-ai/ortm/benchmarks/schema/offline-sample.schema.json",
+  "title": "ORTM offline benchmark frame sample",
+  "type": "object",
+  "required": [
+    "run_id",
+    "scenario",
+    "case",
+    "output_frame_index",
+    "expected_frame_seq",
+    "ok",
+    "decode_ms"
+  ],
+  "properties": {
+    "run_id": { "type": "string" },
+    "scenario": { "type": "string" },
+    "case": { "type": "string" },
+    "background": { "type": "string" },
+    "output_frame_index": { "type": "integer", "minimum": 0 },
+    "expected_frame_seq": { "type": "integer", "minimum": 0, "maximum": 65535 },
+    "expected_timestamp_ms": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "ok": { "type": "boolean" },
+    "reason": { "type": ["string", "null"] },
+    "frame_seq": { "type": ["integer", "null"] },
+    "timestamp_ms": { "type": ["integer", "null"] },
+    "identity_match": { "type": "boolean" },
+    "finder_errors": { "type": ["integer", "null"] },
+    "timing_errors": { "type": ["integer", "null"] },
+    "contrast": { "type": ["number", "null"] },
+    "threshold": { "type": ["number", "null"] },
+    "decode_ms": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": true
+}

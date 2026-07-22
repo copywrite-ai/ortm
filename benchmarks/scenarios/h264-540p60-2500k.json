@@ -1,0 +1,37 @@
+{
+  "name": "h264-540p60-2500k",
+  "description": "ORTM v0 reference H.264 baseline at the current live profile.",
+  "video": {
+    "width": 960,
+    "height": 540,
+    "fps": 60,
+    "frames": 120,
+    "bitrate_kbps": 2500,
+    "key_int": 120,
+    "preset": "ultrafast"
+  },
+  "marker": {
+    "x": 24,
+    "y": 24,
+    "cell": 12,
+    "padding": 12,
+    "background_alpha": 0.15,
+    "cell_alpha": 0.65,
+    "frame_seq_start": 1000,
+    "timestamp_start_ms": 305419896
+  },
+  "cases": [
+    {
+      "name": "flat",
+      "background": "flat"
+    },
+    {
+      "name": "stripes",
+      "background": "stripes"
+    },
+    {
+      "name": "moving-checker",
+      "background": "moving-checker"
+    }
+  ]
+}
