@@ -59,8 +59,20 @@ test('fixed-ROI RGBA decoder reads a nominal marker', () => {
   assert.equal(result.frame_seq, 321);
   assert.equal(result.timestamp_ms, timestampMs);
   assert.equal(result.latency_ms, 37);
+  assert.equal(result.raw_age_ms, 37);
   assert.equal(result.finder_errors, 0);
   assert.equal(result.timing_errors, 0);
+});
+
+test('latency range failure preserves the CRC-validated marker and signed clock delta', () => {
+  const timestampMs = 10_000;
+  const frame = renderRgba(42, timestampMs);
+  const result = decodeRgbaImage(frame.imageData, frame.width, frame.height, timestampMs - 2_000);
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'latency-out-of-range');
+  assert.equal(result.frame_seq, 42);
+  assert.equal(result.timestamp_ms, timestampMs);
+  assert.equal(result.raw_age_ms, -2_000);
 });
 
 test('fixed-ROI RGBA decoder tolerates supported scale and translation', () => {
