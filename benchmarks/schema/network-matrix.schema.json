@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/copywrite-ai/ortm/benchmarks/schema/network-matrix.schema.json",
+  "title": "ORTM controlled network impairment matrix",
+  "type": "object",
+  "required": ["schema_version", "name", "repetitions", "observation_seconds", "sample_interval_seconds", "adapter", "conditions"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "description": { "type": "string" },
+    "seed": { "type": "integer" },
+    "repetitions": { "type": "integer", "minimum": 1 },
+    "warmup_seconds": { "type": "number", "minimum": 0 },
+    "observation_seconds": { "type": "number", "exclusiveMinimum": 0 },
+    "sample_interval_seconds": { "type": "number", "exclusiveMinimum": 0 },
+    "adapter": {
+      "type": "object",
+      "required": ["type", "netem_container", "netem_device", "monitor_container", "snapshot_url", "stream"],
+      "properties": {
+        "type": { "const": "docker-netem-tunnel-monitor-v1" },
+        "netem_container": { "type": "string", "minLength": 1 },
+        "netem_device": { "type": "string", "minLength": 1 },
+        "monitor_container": { "type": "string", "minLength": 1 },
+        "snapshot_url": { "type": "string", "minLength": 1 },
+        "stream": { "type": "string", "minLength": 1 },
+        "ready_timeout_seconds": { "type": "number", "exclusiveMinimum": 0 },
+        "max_clock_uncertainty_ms": { "type": "number", "minimum": 0 },
+        "minimum_ready_fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+        "minimum_clock_valid_fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+        "guard_pid_file": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "impairment"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+          "description": { "type": "string" },
+          "impairment": {
+            "type": "object",
+            "properties": {
+              "clear": { "const": true },
+              "delay_ms": { "type": "number", "minimum": 0 },
+              "jitter_ms": { "type": "number", "minimum": 0 },
+              "loss_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+              "rate_mbps": { "type": "number", "exclusiveMinimum": 0 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

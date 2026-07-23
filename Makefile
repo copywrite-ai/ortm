@@ -1,4 +1,4 @@
-.PHONY: test test-python test-js vectors benchmark-smoke benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
+.PHONY: test test-python test-js vectors benchmark-smoke benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
 
 test: test-python test-js
 
@@ -46,6 +46,12 @@ benchmark-resolution-normalized-exploratory:
 		--matrix benchmarks/matrices/resolution-normalized-exploratory.json \
 		--output benchmark-results/resolution-normalized-exploratory \
 		--overwrite
+
+benchmark-network-dry-run:
+	python3 tools/run_network_matrix.py \
+		--matrix benchmarks/network/tunnel-direct-single-factor-smoke.json \
+		--output benchmark-results/network-dry-run \
+		--dry-run
 
 benchmark-matrix-report:
 	python3 tools/render_matrix_report.py \

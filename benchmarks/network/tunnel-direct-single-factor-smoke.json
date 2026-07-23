@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "tunnel-direct-single-factor-smoke",
+  "description": "Short direct-WebRTC adapter and metric validation across representative single-factor netem conditions.",
+  "seed": 20260723,
+  "repetitions": 1,
+  "warmup_seconds": 4,
+  "observation_seconds": 12,
+  "sample_interval_seconds": 2,
+  "adapter": {
+    "type": "docker-netem-tunnel-monitor-v1",
+    "netem_container": "tunnel-fish_front_whip-1",
+    "netem_device": "eth0",
+    "monitor_container": "tunnel-monitor",
+    "snapshot_url": "http://127.0.0.1:9010/api/snapshot",
+    "stream": "fish_front",
+    "ready_timeout_seconds": 60,
+    "max_clock_uncertainty_ms": 30,
+    "minimum_ready_fraction": 0.8,
+    "minimum_clock_valid_fraction": 0.8,
+    "guard_pid_file": "/tmp/netem-fish-front-guard.pid"
+  },
+  "conditions": [
+    {
+      "name": "clear",
+      "description": "No publisher-egress impairment.",
+      "impairment": { "clear": true }
+    },
+    {
+      "name": "delay50",
+      "description": "50 ms publisher-egress delay.",
+      "impairment": { "delay_ms": 50 }
+    },
+    {
+      "name": "jitter10",
+      "description": "50 ms base delay with 10 ms normal jitter.",
+      "impairment": { "delay_ms": 50, "jitter_ms": 10 }
+    },
+    {
+      "name": "loss0.5",
+      "description": "0.5 percent publisher-egress random packet loss.",
+      "impairment": { "loss_percent": 0.5 }
+    },
+    {
+      "name": "rate3",
+      "description": "3 Mbps publisher-egress rate limit.",
+      "impairment": { "rate_mbps": 3 }
+    }
+  ]
+}

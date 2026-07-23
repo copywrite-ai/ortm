@@ -216,3 +216,58 @@ by Git. Commit only intentionally curated result sets.
 produce a much lower elementary-stream bitrate, while short, complex clips can
 temporarily exceed the target because of the VBV window. Always report the
 measured `actual_bitrate_kbps` from `summary.json`.
+
+## Controlled live-network impairment
+
+The network matrix runner applies validated `tc netem` conditions to the
+publisher container egress and samples the existing tunnel monitor API from its
+container. Validate the randomized plan and exact commands without touching the
+network:
+
+```bash
+make benchmark-network-dry-run
+```
+
+Run the short adapter smoke after opening the Direct Viewer on `fish_front`:
+
+```bash
+python3 tools/run_network_matrix.py \
+  --matrix benchmarks/network/tunnel-direct-single-factor-smoke.json \
+  --output benchmark-results/network-single-factor-smoke \
+  --overwrite
+```
+
+The smoke permits up to 30 ms clock uncertainty so it can validate this
+deployment's current clock-sync path. The formal matrix remains stricter at
+20 ms; smoke latency distributions are diagnostic and are not formal accuracy
+evidence.
+
+The runner always clears the publisher qdisc between conditions and on exit.
+It records raw monitor snapshots, normalized samples, applied commands,
+readiness probes, per-run summaries, randomized execution order, and aggregate
+counter deltas. Stall diagnostics include cumulative freeze/pause counts,
+per-stats-interval freeze/pause durations, receive-minus-decode frame backlog,
+decoded FPS, and
+`requestVideoFrameCallback` gap. The same-origin clock endpoint runs outside
+the impaired publisher container, keeping clock estimation on an out-of-band
+management path for this adapter.
+Each run also stores end-of-condition `tc -s qdisc` output so reports can prove
+that media packets actually traversed the intended impairment point.
+
+Before starting, clear any profile managed by the tunnel netem guard:
+
+```bash
+cd /path/to/tunnel
+scripts/netem-fish-front.sh clear
+```
+
+The runner refuses to start while the guard PID file exists because the guard
+would otherwise restore its own qdisc during a measured condition. Every run
+must independently meet the matrix's minimum ready-sample and clock-valid
+sample fractions. Clock-sensitive ORTM/upstream distributions exclude samples
+whose clock uncertainty exceeds the declared limit.
+
+The formal matrix is `benchmarks/network/tunnel-direct-single-factor-formal.json`.
+It uses five randomized 60-second repetitions for delay, jitter, loss, and
+bandwidth conditions. Do not start it until the smoke completes with active,
+clock-valid Viewer samples.

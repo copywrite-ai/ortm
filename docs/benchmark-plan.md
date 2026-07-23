@@ -115,3 +115,17 @@ padding around the 540p/cell 6 reference.
 The paired exploration recovered every frame. Its formal follow-up is declared
 in `benchmarks/matrices/resolution-normalized-formal.json` with the same
 ten-second, five-repetition policy as the fixed-pixel matrix.
+
+## Controlled network impairment stage
+
+`benchmarks/network/tunnel-direct-single-factor-smoke.json` validates the live
+adapter with representative clear, delay, jitter, loss, and bandwidth
+conditions. The formal matrix varies one factor at a time, uses five randomized
+60-second repetitions, samples every two seconds, and preserves raw monitor
+snapshots plus normalized ORTM/WebRTC/publisher metrics.
+
+Netem is applied only to the publisher media container egress. The clock-sync
+HTTP endpoint remains on an out-of-band management path, preventing the
+controlled one-way media impairment from biasing the four-timestamp estimate.
+Optical ground truth is explicitly deferred; live reports must continue to call
+the result clock-corrected approximate G2G.
