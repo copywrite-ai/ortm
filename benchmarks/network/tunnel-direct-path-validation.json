@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "tunnel-direct-path-validation",
+  "description": "Short proof that fish_front publisher media traverses the configured netem qdisc.",
+  "seed": 20260724,
+  "repetitions": 1,
+  "warmup_seconds": 3,
+  "observation_seconds": 8,
+  "sample_interval_seconds": 2,
+  "adapter": {
+    "type": "docker-netem-tunnel-monitor-v1",
+    "netem_container": "tunnel-fish_front_whip-1",
+    "netem_device": "eth0",
+    "monitor_container": "tunnel-monitor",
+    "snapshot_url": "http://127.0.0.1:9010/api/snapshot",
+    "stream": "fish_front",
+    "ready_timeout_seconds": 60,
+    "max_clock_uncertainty_ms": 30,
+    "minimum_ready_fraction": 0.75,
+    "minimum_clock_valid_fraction": 0.75,
+    "guard_pid_file": "/tmp/netem-fish-front-guard.pid"
+  },
+  "conditions": [
+    {
+      "name": "clear",
+      "description": "No publisher-egress impairment.",
+      "impairment": { "clear": true }
+    },
+    {
+      "name": "delay50",
+      "description": "50 ms publisher-egress delay.",
+      "impairment": { "delay_ms": 50 }
+    },
+    {
+      "name": "loss0.5",
+      "description": "0.5 percent publisher-egress random packet loss.",
+      "impairment": { "loss_percent": 0.5 }
+    }
+  ]
+}

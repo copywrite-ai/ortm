@@ -125,8 +125,12 @@ class NetworkMatrixTest(unittest.TestCase):
 
     def test_committed_matrices_load_and_formal_policy_is_fixed(self) -> None:
         root = Path(__file__).parents[1]
+        path_validation = network.load_matrix(
+            root / "benchmarks/network/tunnel-direct-path-validation.json"
+        )
         smoke = network.load_matrix(root / "benchmarks/network/tunnel-direct-single-factor-smoke.json")
         formal = network.load_matrix(root / "benchmarks/network/tunnel-direct-single-factor-formal.json")
+        self.assertEqual(path_validation["observation_seconds"], 8)
         self.assertEqual(smoke["repetitions"], 1)
         self.assertEqual(formal["repetitions"], 5)
         self.assertEqual(formal["observation_seconds"], 60)

@@ -73,6 +73,7 @@ Curated result reports:
 - [Cell geometry formal matrix, 2026-07-23](../docs/results/geometry-cell-formal-2026-07-23.md)
 - [Fixed-cell resolution formal matrix, 2026-07-23](../docs/results/resolution-fixed-cell6-formal-2026-07-23.md)
 - [Resolution-normalized formal matrix, 2026-07-23](../docs/results/resolution-normalized-formal-2026-07-23.md)
+- [Direct network impairment path validation, 2026-07-23](../docs/results/network-path-validation-2026-07-23.md)
 
 The matrix schema is `benchmarks/schema/offline-matrix.schema.json`. A matrix
 variant recursively overrides `video`, `marker`, or `cases` from its declared
