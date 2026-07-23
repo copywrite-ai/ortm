@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "resolution-fixed-cell6-exploratory",
+  "description": "Short resolution search with marker geometry fixed at cell 6 and the H.264 60 fps 2500 kbps baseline.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 1,
+  "warmup_runs": 0,
+  "variants": [
+    {
+      "name": "360p",
+      "video": { "width": 640, "height": 360, "frames": 12 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "540p",
+      "video": { "width": 960, "height": 540, "frames": 12 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "720p",
+      "video": { "width": 1280, "height": 720, "frames": 12 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "1080p",
+      "video": { "width": 1920, "height": 1080, "frames": 12 },
+      "marker": { "cell": 6 }
+    }
+  ]
+}

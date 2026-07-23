@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "codec-core-formal",
+  "description": "Codec survivability matrix at fixed 960x540, 60 fps, 2500 kbps, and ten seconds per measured run.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 5,
+  "warmup_runs": 1,
+  "variants": [
+    {
+      "name": "h264",
+      "description": "libx264 ultrafast zerolatency.",
+      "video": { "codec": "h264", "frames": 600 }
+    },
+    {
+      "name": "vp8",
+      "description": "libvpx realtime with lookahead and alternate references disabled.",
+      "video": { "codec": "vp8", "frames": 600 }
+    },
+    {
+      "name": "vp9",
+      "description": "libvpx-vp9 realtime with lookahead and alternate references disabled.",
+      "video": { "codec": "vp9", "frames": 600 }
+    },
+    {
+      "name": "av1",
+      "description": "SVT-AV1 preset 11 with low-delay prediction structure and target CBR.",
+      "video": { "codec": "av1", "frames": 600 }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "resolution-normalized-exploratory",
+  "description": "Short paired resolution search with marker geometry normalized around the 540p cell 6 reference.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 1,
+  "warmup_runs": 0,
+  "variants": [
+    {
+      "name": "360p-cell4",
+      "video": { "width": 640, "height": 360, "frames": 12 },
+      "marker": { "x": 16, "y": 16, "cell": 4, "padding": 8 }
+    },
+    {
+      "name": "540p-cell6",
+      "video": { "width": 960, "height": 540, "frames": 12 },
+      "marker": { "x": 24, "y": 24, "cell": 6, "padding": 12 }
+    },
+    {
+      "name": "720p-cell8",
+      "video": { "width": 1280, "height": 720, "frames": 12 },
+      "marker": { "x": 32, "y": 32, "cell": 8, "padding": 16 }
+    },
+    {
+      "name": "1080p-cell12",
+      "video": { "width": 1920, "height": 1080, "frames": 12 },
+      "marker": { "x": 48, "y": 48, "cell": 12, "padding": 24 }
+    }
+  ]
+}

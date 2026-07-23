@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "h264-core-smoke",
+  "description": "Fast validation of randomized matrix execution and aggregation.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260722,
+  "repetitions": 2,
+  "warmup_runs": 0,
+  "variants": [
+    {
+      "name": "baseline",
+      "video": { "frames": 12 }
+    },
+    {
+      "name": "fps30",
+      "video": { "fps": 30, "frames": 12, "key_int": 60 }
+    },
+    {
+      "name": "bitrate1250k",
+      "video": { "frames": 12, "bitrate_kbps": 1250 }
+    }
+  ]
+}

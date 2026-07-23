@@ -64,6 +64,39 @@ class OfflineBenchmarkTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "safe file name"):
                 benchmark.load_scenario(path)
 
+    def test_codec_profiles_use_reproducible_encoders_and_containers(self) -> None:
+        expected = {
+            "h264": ("libx264", ".h264", "h264"),
+            "vp8": ("libvpx", ".ivf", "ivf"),
+            "vp9": ("libvpx-vp9", ".ivf", "ivf"),
+            "av1": ("libsvtav1", ".ivf", "ivf"),
+        }
+        for codec, values in expected.items():
+            video = {**self.scenario["video"], "codec": codec}
+            settings = benchmark.codec_settings(video)
+            self.assertEqual(
+                (settings["encoder"], settings["extension"], settings["muxer"]),
+                values,
+            )
+        av1_arguments = benchmark.codec_settings({
+            **self.scenario["video"], "codec": "av1"
+        })["arguments"]
+        self.assertIn("-maxrate", av1_arguments)
+        self.assertEqual(av1_arguments[av1_arguments.index("-preset") + 1], "11")
+        self.assertEqual(
+            av1_arguments[av1_arguments.index("-svtav1-params") + 1],
+            "pred-struct=1",
+        )
+
+    def test_scenario_defaults_to_h264_and_rejects_unknown_codec(self) -> None:
+        self.assertEqual(benchmark.codec_name(self.scenario["video"]), "h264")
+        self.scenario["video"]["codec"] = "unknown"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "scenario.json"
+            path.write_text(json.dumps(self.scenario), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unsupported codec"):
+                benchmark.load_scenario(path)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "geometry-cell-exploratory",
+  "description": "Short search for the minimum decodable ORTM cell size at the fixed 540p60 H.264 baseline.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 1,
+  "warmup_runs": 0,
+  "variants": [
+    { "name": "cell12", "marker": { "cell": 12 }, "video": { "frames": 12 } },
+    { "name": "cell10", "marker": { "cell": 10 }, "video": { "frames": 12 } },
+    { "name": "cell8", "marker": { "cell": 8 }, "video": { "frames": 12 } },
+    { "name": "cell6", "marker": { "cell": 6 }, "video": { "frames": 12 } },
+    { "name": "cell4", "marker": { "cell": 4 }, "video": { "frames": 12 } },
+    { "name": "cell3", "marker": { "cell": 3 }, "video": { "frames": 12 } },
+    { "name": "cell2", "marker": { "cell": 2 }, "video": { "frames": 12 } },
+    { "name": "cell1", "marker": { "cell": 1 }, "video": { "frames": 12 } }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/copywrite-ai/ortm/benchmarks/schema/offline-matrix.schema.json",
+  "title": "ORTM offline benchmark matrix",
+  "type": "object",
+  "required": ["schema_version", "name", "base_scenario", "variants"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "description": { "type": "string" },
+    "base_scenario": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer" },
+    "repetitions": { "type": "integer", "minimum": 1 },
+    "warmup_runs": { "type": "integer", "minimum": 0 },
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+          "description": { "type": "string" },
+          "video": { "type": "object" },
+          "marker": { "type": "object" },
+          "cases": { "type": "array", "minItems": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

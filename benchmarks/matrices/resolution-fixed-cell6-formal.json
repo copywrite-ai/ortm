@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "resolution-fixed-cell6-formal",
+  "description": "Formal resolution boundary matrix with marker geometry fixed at cell 6, H.264 60 fps 2500 kbps, and ten seconds per measured run.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 5,
+  "warmup_runs": 1,
+  "variants": [
+    {
+      "name": "360p",
+      "description": "640x360 with fixed cell 6 marker.",
+      "video": { "width": 640, "height": 360, "frames": 600 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "540p",
+      "description": "960x540 with fixed cell 6 marker.",
+      "video": { "width": 960, "height": 540, "frames": 600 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "720p",
+      "description": "1280x720 with fixed cell 6 marker.",
+      "video": { "width": 1280, "height": 720, "frames": 600 },
+      "marker": { "cell": 6 }
+    },
+    {
+      "name": "1080p",
+      "description": "1920x1080 with fixed cell 6 marker.",
+      "video": { "width": 1920, "height": 1080, "frames": 600 },
+      "marker": { "cell": 6 }
+    }
+  ]
+}

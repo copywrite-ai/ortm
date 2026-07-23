@@ -82,6 +82,12 @@ Run the offline FFmpeg/libx264 codec benchmark (no network required):
 make benchmark-smoke
 ```
 
+Run the repeated, randomized H.264 matrix smoke suite:
+
+```bash
+make benchmark-matrix-smoke
+```
+
 See `benchmarks/README.md` for the output schema and artifact options.
 
 Generated vectors are committed. A normal implementation change must not alter

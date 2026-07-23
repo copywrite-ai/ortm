@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "codec-core-smoke",
+  "description": "Fast orchestration and encoder availability check for the four codec profiles.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 1,
+  "warmup_runs": 0,
+  "variants": [
+    { "name": "h264", "video": { "codec": "h264", "frames": 12 } },
+    { "name": "vp8", "video": { "codec": "vp8", "frames": 12 } },
+    { "name": "vp9", "video": { "codec": "vp9", "frames": 12 } },
+    { "name": "av1", "video": { "codec": "av1", "frames": 12 } }
+  ]
+}

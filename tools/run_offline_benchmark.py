@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run deterministic ORTM frames through an offline FFmpeg H.264 round trip."""
+"""Run deterministic ORTM frames through an offline FFmpeg codec round trip."""
 
 from __future__ import annotations
 
@@ -21,6 +21,72 @@ from ortm.codec import ENCODED_CELLS, GRID_SIZE, UINT32_MASK, encode_grid
 from ortm.raster import DecodeError, RasterProfile, decode_luma_frame
 
 
+SUPPORTED_CODECS = {"h264", "vp8", "vp9", "av1"}
+
+
+def codec_name(video: dict[str, Any]) -> str:
+    return str(video.get("codec", "h264")).lower()
+
+
+def codec_settings(video: dict[str, Any]) -> dict[str, Any]:
+    codec = codec_name(video)
+    bitrate = int(video["bitrate_kbps"])
+    key_int = int(video["key_int"])
+    rate_control = [
+        "-b:v", f"{bitrate}k",
+        "-maxrate", f"{bitrate}k",
+        "-bufsize", f"{bitrate * 2}k",
+        "-g", str(key_int),
+    ]
+    if codec == "h264":
+        return {
+            "encoder": "libx264",
+            "extension": ".h264",
+            "muxer": "h264",
+            "arguments": [
+                "-c:v", "libx264",
+                "-preset", str(video.get("preset", "ultrafast")),
+                "-tune", "zerolatency",
+                "-pix_fmt", "yuv420p",
+                *rate_control,
+                "-keyint_min", str(key_int),
+                "-sc_threshold", "0",
+                "-bf", "0",
+            ],
+        }
+    if codec in {"vp8", "vp9"}:
+        encoder = "libvpx" if codec == "vp8" else "libvpx-vp9"
+        return {
+            "encoder": encoder,
+            "extension": ".ivf",
+            "muxer": "ivf",
+            "arguments": [
+                "-c:v", encoder,
+                "-deadline", "realtime",
+                "-cpu-used", "8",
+                "-lag-in-frames", "0",
+                "-auto-alt-ref", "0",
+                "-error-resilient", "default",
+                "-pix_fmt", "yuv420p",
+                *rate_control,
+            ],
+        }
+    if codec == "av1":
+        return {
+            "encoder": "libsvtav1",
+            "extension": ".ivf",
+            "muxer": "ivf",
+            "arguments": [
+                "-c:v", "libsvtav1",
+                "-preset", "11",
+                "-pix_fmt", "yuv420p",
+                *rate_control,
+                "-svtav1-params", "pred-struct=1",
+            ],
+        }
+    raise ValueError(f"unsupported codec {codec!r}")
+
+
 def load_scenario(path: Path) -> dict[str, Any]:
     scenario = json.loads(path.read_text(encoding="utf-8"))
     for key in ("name", "video", "marker", "cases"):
@@ -28,6 +94,8 @@ def load_scenario(path: Path) -> dict[str, Any]:
             raise ValueError(f"scenario is missing {key!r}")
     video = scenario["video"]
     marker = scenario["marker"]
+    if codec_name(video) not in SUPPORTED_CODECS:
+        raise ValueError(f"unsupported codec {codec_name(video)!r}")
     for key in ("width", "height", "fps", "frames", "bitrate_kbps", "key_int"):
         if int(video.get(key, 0)) <= 0:
             raise ValueError(f"video.{key} must be positive")
@@ -92,14 +160,15 @@ class FrameRenderer:
         if name == "moving-checker":
             shift_x = (frame_index * 3) % 32
             shift_y = (frame_index * 2) % 32
-            rows = [
-                bytes(
-                    35 if (((x + shift_x) // 16) + ((y + shift_y) // 16)) % 2 == 0 else 220
-                    for x in range(self.width)
-                )
-                for y in range(self.height)
-            ]
-            return bytearray(b"".join(rows))
+            row_patterns = (
+                bytes(35 if ((x + shift_x) // 16) % 2 == 0 else 220 for x in range(self.width)),
+                bytes(220 if ((x + shift_x) // 16) % 2 == 0 else 35 for x in range(self.width)),
+            )
+            for y in range(self.height):
+                start = y * self.width
+                parity = ((y + shift_y) // 16) % 2
+                frame[start : start + self.width] = row_patterns[parity]
+            return frame
 
         raise ValueError(f"unsupported background {name!r}")
 
@@ -177,8 +246,7 @@ def encoder_command(ffmpeg: str, video: dict[str, Any], output: Path) -> list[st
     width = int(video["width"])
     height = int(video["height"])
     fps = int(video["fps"])
-    bitrate = int(video["bitrate_kbps"])
-    key_int = int(video["key_int"])
+    settings = codec_settings(video)
     return [
         ffmpeg,
         "-hide_banner",
@@ -198,30 +266,9 @@ def encoder_command(ffmpeg: str, video: dict[str, Any], output: Path) -> list[st
         "-an",
         "-frames:v",
         str(int(video["frames"])),
-        "-c:v",
-        "libx264",
-        "-preset",
-        str(video.get("preset", "ultrafast")),
-        "-tune",
-        "zerolatency",
-        "-pix_fmt",
-        "yuv420p",
-        "-b:v",
-        f"{bitrate}k",
-        "-maxrate",
-        f"{bitrate}k",
-        "-bufsize",
-        f"{bitrate * 2}k",
-        "-g",
-        str(key_int),
-        "-keyint_min",
-        str(key_int),
-        "-sc_threshold",
-        "0",
-        "-bf",
-        "0",
+        *settings["arguments"],
         "-f",
-        "h264",
+        settings["muxer"],
         str(output),
     ]
 
@@ -463,7 +510,8 @@ def main() -> int:
 
     for case in scenario["cases"]:
         print(f"[{case['name']}] encode", flush=True)
-        bitstream = args.output / f"{case['name']}.h264"
+        settings = codec_settings(scenario["video"])
+        bitstream = args.output / f"{case['name']}{settings['extension']}"
         encode_cmd, encode_seconds = encode_case(ffmpeg, scenario, case, bitstream, renderer)
         print(f"[{case['name']}] decode", flush=True)
         samples, decode_cmd, decode_seconds = decode_case(
@@ -495,7 +543,12 @@ def main() -> int:
         "run_id": run_id,
         "created_at": datetime.now(UTC).isoformat(),
         "scenario": scenario,
-        "toolchain": {"ffmpeg": ffmpeg_version(ffmpeg), "python": sys.version.split()[0]},
+        "toolchain": {
+            "ffmpeg": ffmpeg_version(ffmpeg),
+            "python": sys.version.split()[0],
+            "codec": codec_name(scenario["video"]),
+            "encoder": codec_settings(scenario["video"])["encoder"],
+        },
         "commands": commands,
         "cases": case_summaries,
         "overall": {

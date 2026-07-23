@@ -71,3 +71,47 @@ order where thermal state or network history could bias results.
 - raw measurements in a documented CSV or JSONL schema;
 - analysis scripts that recreate every table and figure;
 - a small redistributable set of encoded marker clips.
+
+## Current executable matrices
+
+`benchmarks/matrices/h264-core-formal.json` implements the first one-factor
+formal matrix around the validated 540p60 H.264 profile. It fixes each measured
+run to ten seconds, performs one warm-up run per variant, uses five independent
+repetitions, and randomizes measured execution order with a committed seed.
+
+The first matrix covers FPS, target bitrate, key-frame interval, and rendering
+alpha. Resolution is deferred to a separate matrix because the default 408-pixel
+outer marker does not fit at 360p. That experiment must explicitly distinguish
+constant-pixel marker geometry from resolution-normalized marker geometry.
+
+`benchmarks/matrices/codec-core-formal.json` holds all declared video and marker
+factors constant while comparing fixed low-latency-oriented FFmpeg profiles for
+H.264, VP8, VP9, and AV1. Codec results establish ORTM survivability under each
+profile; they are not a codec quality or real-time CPU benchmark.
+
+`benchmarks/matrices/geometry-cell-exploratory.json` searches cell sizes from
+12 pixels down to 1 pixel at the fixed H.264 baseline. It is intentionally a
+short boundary finder. A formal geometry matrix must be declared only after the
+first passing/failing interval is known.
+
+The exploratory run located that interval between cells 3 and 4. The formal
+follow-up in `benchmarks/matrices/geometry-cell-formal.json` measures cells 3,
+4, 6, and 12 for ten seconds with five independent repetitions.
+
+`benchmarks/matrices/resolution-fixed-cell6-exploratory.json` then fixes marker
+geometry at cell 6 while varying 360p, 540p, 720p, and 1080p. This isolates the
+effect of video resolution at a common 60 fps and 2500 kbps target before any
+resolution-normalized marker experiment is attempted.
+
+The exploratory result found moving-texture failures at 720p and 1080p. The
+formal follow-up in `benchmarks/matrices/resolution-fixed-cell6-formal.json`
+keeps all four resolutions to measure both the passing controls and failing
+boundary under the same randomized repetition policy.
+
+`benchmarks/matrices/resolution-normalized-exploratory.json` is the paired
+follow-up. It holds the marker at 40% of frame height by scaling x, y, cell, and
+padding around the 540p/cell 6 reference.
+
+The paired exploration recovered every frame. Its formal follow-up is declared
+in `benchmarks/matrices/resolution-normalized-formal.json` with the same
+ten-second, five-repetition policy as the fixed-pixel matrix.

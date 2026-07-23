@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "h264-core-formal",
+  "description": "One-factor H.264 matrix around the validated 540p60 profile. Every measured run is 10 seconds.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260722,
+  "repetitions": 5,
+  "warmup_runs": 1,
+  "variants": [
+    {
+      "name": "baseline",
+      "description": "960x540, 60 fps, 2500 kbps, two-second key interval, validated alpha profile.",
+      "video": { "frames": 600 }
+    },
+    {
+      "name": "fps15",
+      "video": { "fps": 15, "frames": 150, "key_int": 30 }
+    },
+    {
+      "name": "fps30",
+      "video": { "fps": 30, "frames": 300, "key_int": 60 }
+    },
+    {
+      "name": "fps50",
+      "video": { "fps": 50, "frames": 500, "key_int": 100 }
+    },
+    {
+      "name": "bitrate1250k",
+      "video": { "frames": 600, "bitrate_kbps": 1250 }
+    },
+    {
+      "name": "bitrate5000k",
+      "video": { "frames": 600, "bitrate_kbps": 5000 }
+    },
+    {
+      "name": "keyint1s",
+      "video": { "frames": 600, "key_int": 60 }
+    },
+    {
+      "name": "keyint4s",
+      "video": { "frames": 600, "key_int": 240 }
+    },
+    {
+      "name": "render-opaque",
+      "video": { "frames": 600 },
+      "marker": { "background_alpha": 1.0, "cell_alpha": 1.0 }
+    },
+    {
+      "name": "render-alpha30-75",
+      "video": { "frames": 600 },
+      "marker": { "background_alpha": 0.3, "cell_alpha": 0.75 }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "geometry-cell-formal",
+  "description": "Formal cell-size boundary matrix at fixed 960x540, 60 fps, H.264 2500 kbps, and ten seconds per measured run.",
+  "base_scenario": "../scenarios/h264-540p60-2500k.json",
+  "seed": 20260723,
+  "repetitions": 5,
+  "warmup_runs": 1,
+  "variants": [
+    {
+      "name": "cell3",
+      "description": "First partially failing size in the exploratory matrix.",
+      "marker": { "cell": 3 },
+      "video": { "frames": 600 }
+    },
+    {
+      "name": "cell4",
+      "description": "Smallest size with complete exploratory recovery.",
+      "marker": { "cell": 4 },
+      "video": { "frames": 600 }
+    },
+    {
+      "name": "cell6",
+      "description": "Intermediate geometry reference.",
+      "marker": { "cell": 6 },
+      "video": { "frames": 600 }
+    },
+    {
+      "name": "cell12",
+      "description": "Current validated geometry reference.",
+      "marker": { "cell": 12 },
+      "video": { "frames": 600 }
+    }
+  ]
+}
