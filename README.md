@@ -34,13 +34,33 @@ It does not, by itself, measure camera exposure before the overlay or the final
 display scan-out after the frame becomes available. Strict glass-to-glass claims
 must be calibrated against an external optical reference.
 
+## Clock synchronization
+
+ORTM carries a wall-clock timestamp but does not synchronize clocks inside the
+video marker. This repository includes an optional four-timestamp HTTP reference
+implementation for clock-corrected approximate G2G measurements:
+
+- `src/js/clock-sync.js`: browser/JavaScript client;
+- `src/node/clock-sync.js`: embeddable Node.js request handler;
+- `examples/clock-sync-server.mjs`: standalone reference server;
+- `docs/clock-sync.md`: protocol, deployment, and source-binding rules.
+
+The clock endpoint MUST represent the same Publisher clock that writes the ORTM
+timestamp. Each deployment assigns that clock a stable `clockId`; a Viewer
+SHOULD validate the expected `clockId` before accepting a correction.
+
 ## Repository layout
 
 - `spec/ORTM-v0.md`: normative wire and raster specification.
 - `src/python/ortm`: Python reference codec and fixed-ROI raster decoder.
 - `src/js/ortm.js`: JavaScript reference logical codec.
 - `src/js/raster.js`: reusable browser fixed-ROI pixel decoder.
+- `src/js/clock-sync.js`: four-timestamp clock estimator.
+- `src/node/clock-sync.js`: embeddable clock-sync HTTP handler.
+- `integrations/clock-sync`: standalone clock-sync container.
 - `integrations/gstreamer`: reusable `cairooverlay` adapter.
+- `profiles/ortm-v0-fixed-720p.json`: machine-readable sender compatibility profile.
+- `tools/validate_frame.py`: strict final-frame sender conformance check.
 - `web/index.html`: zero-backend browser encode/decode demo.
 - `vectors/ortm-v0.json`: language-neutral golden vectors.
 - `tests`: conformance, corruption, rollover, scale, and translation tests.
@@ -51,6 +71,8 @@ must be calibrated against an external optical reference.
 ## Integration guides
 
 - [中文：GStreamer 发送端、Web 前端与 BFF 接入指南](docs/frontend-backend-integration.zh-CN.md)
+- [中文：ORTM v0 GStreamer 发送端兼容指南](docs/sender-integration.zh-CN.md)
+- [Clock synchronization reference](docs/clock-sync.md)
 - [GStreamer integration](integrations/gstreamer/README.md)
 - [Benchmark plan](docs/benchmark-plan.md)
 

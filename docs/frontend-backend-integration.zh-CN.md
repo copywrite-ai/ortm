@@ -89,6 +89,56 @@ BFF 是可选的应用层组件，通常负责：
 
 ORTM 解码完全可以在浏览器本地完成，不要求把视频帧上传给 BFF。
 
+### 时钟校准接口
+
+ORTM v0 在画面中携带发送端墙钟时间，但码制本身不负责同步两端系统时钟。
+仓库提供可选的四时间戳 HTTP 参考实现：
+
+```text
+src/js/clock-sync.js
+src/node/clock-sync.js
+examples/clock-sync-server.mjs
+```
+
+每个视频源应作为一个完整配置交给前端：
+
+```js
+{
+  whepUrl: 'https://publisher-a.example/fish_front/whep',
+  clockSyncUrl: 'https://publisher-a.example/api/clock-sync',
+  clockId: 'publisher-a',
+}
+```
+
+`clockSyncUrl` 必须对应真正写入 ORTM 时间戳的 Publisher 时钟，不能默认使用
+播放页面的同源地址。四路来自不同 Publisher 时，应分别维护四份校准结果。
+前端应校验接口返回的 `clockId`，不匹配时停止输出校正后的近似 G2G。
+
+如果根据 WHEP origin 自动推导，必须保留端口：
+
+```text
+https://publisher.example:8889/fish_front/whep
+-> https://publisher.example:8889/api/clock-sync
+```
+
+因此 `:8889` 的反向代理必须把 `/api/clock-sync` 转发到时钟服务，而不是
+MediaMTX。若时钟服务没有挂在同一个公开 origin，必须显式提供
+`clockSyncUrl`。HTTPS 页面不能直接访问 `http://publisher:9011`，应先通过
+HTTPS 反向代理。
+
+协议字段必须是 Unix 毫秒数值：
+
+```text
+serverReceiveUnixMs
+serverSendUnixMs
+```
+
+已有服务若使用 `server_receive_ms`、`server_transmit_ms` 等字段，应通过
+`payloadAdapter` 显式映射。`structure-mismatch` 属于 Marker/ROI 问题，
+与时钟同步是否成功无关。
+
+协议和部署方式见 [`docs/clock-sync.md`](clock-sync.md)。
+
 ## 3. GStreamer 发送端接入
 
 仓库提供 `cairooverlay` 参考 adapter：

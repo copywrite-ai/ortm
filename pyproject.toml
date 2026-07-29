@@ -10,5 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 
+[project.optional-dependencies]
+image = ["Pillow>=10"]
+
 [tool.setuptools.packages.find]
 where = ["src/python"]

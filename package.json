@@ -5,11 +5,16 @@
   "description": "ORTM v0 JavaScript reference codec",
   "exports": {
     ".": "./src/js/ortm.js",
-    "./raster": "./src/js/raster.js"
+    "./raster": "./src/js/raster.js",
+    "./clock-sync": "./src/js/clock-sync.js",
+    "./clock-sync/server": "./src/node/clock-sync.js"
   },
   "files": [
     "src/js",
+    "src/node",
+    "examples/clock-sync-server.mjs",
     "spec/ORTM-v0.md",
+    "docs/clock-sync.md",
     "LICENSE",
     "README.md"
   ],

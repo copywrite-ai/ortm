@@ -1,0 +1,31 @@
+{
+  "id": "ortm-v0-fixed-720p",
+  "protocol": "ORTM-v0",
+  "frame": {
+    "width": 1280,
+    "height": 720
+  },
+  "raster": {
+    "gridSize": 32,
+    "finderSize": 4,
+    "timingIndex": 4,
+    "x": 24,
+    "y": 24,
+    "cell": 12,
+    "padding": 12,
+    "boxSize": 408
+  },
+  "rendering": {
+    "backgroundAlpha": 0.15,
+    "cellAlpha": 0.65,
+    "antialias": false,
+    "borderWidth": 2
+  },
+  "validation": {
+    "scales": [1.0],
+    "offsets": [0],
+    "minContrast": 32,
+    "maxFinderErrors": 8,
+    "maxTimingErrors": 10
+  }
+}

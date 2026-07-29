@@ -1,4 +1,4 @@
-.PHONY: test test-python test-js vectors benchmark-smoke benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
+.PHONY: test test-python test-js vectors sender-conformance benchmark-smoke benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
 
 test: test-python test-js
 
@@ -10,6 +10,11 @@ test-js:
 
 vectors:
 	PYTHONPATH=src/python python3 tools/generate_vectors.py
+
+sender-conformance:
+	PYTHONPATH=src/python python3 tools/generate_reference_frame.py
+	PYTHONPATH=src/python python3 tools/validate_frame.py \
+		--input fixtures/ortm-v0-fixed-720p.png
 
 benchmark-smoke:
 	PYTHONPATH=src/python python3 tools/run_offline_benchmark.py \
