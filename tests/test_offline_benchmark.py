@@ -73,6 +73,23 @@ class OfflineBenchmarkTest(unittest.TestCase):
         self.assertEqual(first, renderer.background_frame("snow", 10))
         self.assertNotEqual(first, renderer.background_frame("snow", 11))
 
+    def test_three_finder_marker_decodes_with_matching_layout(self) -> None:
+        self.scenario["marker"].update({
+            "background_alpha": 0,
+            "cell_alpha": 0.70,
+            "border_alpha": 0,
+            "finder_layout": "three",
+        })
+        renderer = benchmark.FrameRenderer(self.scenario)
+        frame = renderer.render("snow", 3, 987, 654321)
+        decoded = decode_luma_frame(
+            benchmark.frame_rows(frame, renderer.width, renderer.height),
+            nominal=RasterProfile(),
+            finder_layout="three",
+        )
+        self.assertEqual(decoded.marker.frame_seq, 987)
+        self.assertEqual(decoded.marker.timestamp_ms, 654321)
+
     def test_percentile_interpolates(self) -> None:
         self.assertEqual(benchmark.percentile([1, 2, 3, 4], 0.5), 2.5)
         self.assertEqual(benchmark.percentile([1], 0.99), 1)

@@ -34,6 +34,7 @@
         "background_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
         "cell_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
         "border_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "finder_layout": { "enum": ["four", "three"] },
         "frame_seq_start": { "type": "integer", "minimum": 0, "maximum": 65535 },
         "timestamp_start_ms": { "type": "integer", "minimum": 0, "maximum": 4294967295 }
       },

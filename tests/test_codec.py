@@ -6,10 +6,12 @@ from pathlib import Path
 
 from ortm.codec import (
     PAYLOAD_CELLS,
+    FINDER_LAYOUT_THREE,
     DecodeError,
     crc16_ccitt_false,
     decode_grid,
     encode_grid,
+    encoded_cells,
     frame_age_ms,
     grid_rows,
     rows_to_grid,
@@ -69,6 +71,20 @@ class CodecTest(unittest.TestCase):
     def test_unsupported_version_is_rejected(self) -> None:
         with self.assertRaisesRegex(DecodeError, "unsupported-version"):
             decode_grid(encode_grid(1, 2, version=1))
+
+    def test_three_finder_layout_requires_layout_aware_decoder(self) -> None:
+        grid = encode_grid(
+            321,
+            0x12345678,
+            finder_layout=FINDER_LAYOUT_THREE,
+        )
+        with self.assertRaisesRegex(DecodeError, "structure-mismatch"):
+            decode_grid(grid)
+
+        decoded = decode_grid(grid, finder_layout=FINDER_LAYOUT_THREE)
+        self.assertEqual(decoded.frame_seq, 321)
+        self.assertEqual(decoded.timestamp_ms, 0x12345678)
+        self.assertEqual(len(encoded_cells(FINDER_LAYOUT_THREE)), len(encoded_cells()) - 16)
 
 
 if __name__ == "__main__":

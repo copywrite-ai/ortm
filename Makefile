@@ -1,4 +1,4 @@
-.PHONY: test test-python test-js vectors sender-conformance benchmark-smoke benchmark-minimal-720p benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
+.PHONY: test test-python test-js vectors sender-conformance benchmark-smoke benchmark-minimal-720p benchmark-finder-layout-formal benchmark-finder-layout-report benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
 
 test: test-python test-js
 
@@ -27,6 +27,18 @@ benchmark-minimal-720p:
 		--scenario benchmarks/scenarios/h264-720p60-2500k-minimal.json \
 		--output benchmark-results/h264-720p60-2500k-minimal \
 		--overwrite
+
+benchmark-finder-layout-formal:
+	PYTHONPATH=src/python python3 tools/run_offline_matrix.py \
+		--matrix benchmarks/matrices/finder-layout-formal.json \
+		--output benchmark-results/finder-layout-formal \
+		--overwrite
+
+benchmark-finder-layout-report:
+	python3 tools/render_matrix_report.py \
+		--summary benchmark-results/finder-layout-formal/summary.json \
+		--output docs/results/finder-layout-formal-2026-08-04.md \
+		--artifact-path benchmark-results/finder-layout-formal
 
 benchmark-matrix-smoke:
 	PYTHONPATH=src/python python3 tools/run_offline_matrix.py \

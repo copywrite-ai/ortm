@@ -229,6 +229,7 @@ def flatten_run_rows(
             "key_int": video["key_int"],
             "background_alpha": marker["background_alpha"],
             "cell_alpha": marker["cell_alpha"],
+            "finder_layout": marker.get("finder_layout", "four"),
             "expected_frames": case["expected_frames"],
             "successful_frames": case["successful_frames"],
             "success_percent": case["success_percent"],

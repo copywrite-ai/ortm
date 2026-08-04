@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from ortm.codec import PAYLOAD_CELLS, DecodeError
+from ortm.codec import FINDER_LAYOUT_THREE, PAYLOAD_CELLS, DecodeError
 from ortm.raster import RasterProfile, decode_luma_frame, render_luma_frame
 
 
@@ -53,6 +53,19 @@ class RasterTest(unittest.TestCase):
         frame = render_luma_frame(1, 2, black=120, white=140)
         with self.assertRaisesRegex(DecodeError, "low-contrast"):
             decode_luma_frame(frame, scales=(1.0,), offsets=(0,))
+
+    def test_three_finder_raster_round_trip(self) -> None:
+        frame = render_luma_frame(
+            456,
+            0xAABBCCDD,
+            finder_layout=FINDER_LAYOUT_THREE,
+        )
+        result = decode_luma_frame(
+            frame,
+            finder_layout=FINDER_LAYOUT_THREE,
+        )
+        self.assertEqual(result.marker.frame_seq, 456)
+        self.assertEqual(result.marker.timestamp_ms, 0xAABBCCDD)
 
 
 if __name__ == "__main__":

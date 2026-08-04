@@ -4,10 +4,12 @@ import test from 'node:test';
 
 import {
   PAYLOAD_CELLS,
+  FINDER_LAYOUT_THREE,
   OrtmDecodeError,
   crc16CcittFalse,
   decodeGrid,
   encodeGrid,
+  encodedCells,
   frameAgeMs,
   gridRows,
   rowsToGrid,
@@ -49,4 +51,16 @@ test('unsupported versions are rejected', () => {
     () => decodeGrid(encodeGrid(1, 2, 1)),
     (error) => error instanceof OrtmDecodeError && error.reason === 'unsupported-version',
   );
+});
+
+test('three-finder layout requires a layout-aware decoder', () => {
+  const grid = encodeGrid(321, 0x12345678, 0, FINDER_LAYOUT_THREE);
+  assert.throws(
+    () => decodeGrid(grid),
+    (error) => error instanceof OrtmDecodeError && error.reason === 'structure-mismatch',
+  );
+  const decoded = decodeGrid(grid, { finderLayout: FINDER_LAYOUT_THREE });
+  assert.equal(decoded.frameSeq, 321);
+  assert.equal(decoded.timestampMs, 0x12345678);
+  assert.equal(encodedCells(FINDER_LAYOUT_THREE).length, encodedCells().length - 16);
 });

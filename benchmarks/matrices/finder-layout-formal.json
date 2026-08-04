@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "name": "finder-layout-formal",
+  "description": "Compare four and three finder layouts at the validated sparse 720p profile while preserving the v0 payload map.",
+  "base_scenario": "../scenarios/h264-720p60-2500k-minimal.json",
+  "seed": 20260804,
+  "repetitions": 5,
+  "warmup_runs": 1,
+  "variants": [
+    {
+      "name": "four-finder",
+      "description": "Standard ORTM v0 four-corner finder layout.",
+      "marker": {
+        "finder_layout": "four"
+      }
+    },
+    {
+      "name": "three-finder",
+      "description": "Experimental layout omitting the bottom-right finder while retaining its reserved cells.",
+      "marker": {
+        "finder_layout": "three"
+      }
+    }
+  ]
+}

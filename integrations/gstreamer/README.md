@@ -47,3 +47,17 @@ renderer = OrtmCairoOverlay(
 This reduces visual obstruction, but also makes decoding more dependent on the
 underlying video content and codec settings. Validate the selected geometry and
 alpha against representative moving backgrounds before deployment.
+
+On the experimental three-finder branch, omit the bottom-right finder with:
+
+```python
+renderer = OrtmCairoOverlay(
+    background_alpha=0,
+    cell_alpha=0.70,
+    border_alpha=0,
+    finder_layout="three",
+)
+```
+
+The receiver must use the same finder layout. This mode preserves the ORTM v0
+payload cells but is not compatible with a decoder that validates four finders.

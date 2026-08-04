@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from ortm.codec import ENCODED_CELLS
+from ortm.codec import ENCODED_CELLS, FINDER_LAYOUT_THREE, encoded_cells
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "integrations" / "gstreamer" / "ortm_overlay.py"
@@ -101,6 +101,22 @@ class GStreamerAdapterTest(unittest.TestCase):
 
         self.assertEqual(len(context.rectangles), len(ENCODED_CELLS))
         self.assertEqual(renderer.border_alpha, 0)
+
+    def test_three_finder_rendering_omits_bottom_right_block(self) -> None:
+        adapter = load_adapter()
+        renderer = adapter.OrtmCairoOverlay(
+            background_alpha=0,
+            border_alpha=0,
+            finder_layout=FINDER_LAYOUT_THREE,
+            clock_ms=lambda: 123,
+        )
+        context = FakeContext()
+        renderer.draw(None, context, 0, None)
+
+        self.assertEqual(
+            len(context.rectangles),
+            len(encoded_cells(FINDER_LAYOUT_THREE)),
+        )
 
 
 if __name__ == "__main__":

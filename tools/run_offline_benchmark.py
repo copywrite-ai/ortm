@@ -18,7 +18,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable
 
-from ortm.codec import ENCODED_CELLS, GRID_SIZE, UINT32_MASK, encode_grid
+from ortm.codec import (
+    FINDER_LAYOUT_FOUR,
+    GRID_SIZE,
+    UINT32_MASK,
+    encode_grid,
+    encoded_cells,
+    validate_finder_layout,
+)
 from ortm.raster import DecodeError, RasterProfile, decode_luma_frame
 
 
@@ -104,6 +111,7 @@ def load_scenario(path: Path) -> dict[str, Any]:
         raise ValueError("marker.cell must be positive")
     if int(marker.get("padding", -1)) < 0:
         raise ValueError("marker.padding must be non-negative")
+    validate_finder_layout(marker.get("finder_layout", FINDER_LAYOUT_FOUR))
     for key in ("background_alpha", "cell_alpha", "border_alpha"):
         if key == "border_alpha" and key not in marker:
             continue
@@ -140,6 +148,8 @@ class FrameRenderer:
         self.y = int(marker.get("y", 24))
         self.cell = int(marker.get("cell", 12))
         self.padding = int(marker.get("padding", 12))
+        self.finder_layout = str(marker.get("finder_layout", FINDER_LAYOUT_FOUR))
+        validate_finder_layout(self.finder_layout)
         self.box_size = GRID_SIZE * self.cell + self.padding * 2
         if self.x < 0 or self.y < 0 or self.x + self.box_size > self.width or self.y + self.box_size > self.height:
             raise ValueError("marker does not fit inside configured video frame")
@@ -188,10 +198,14 @@ class FrameRenderer:
             end = start + self.box_size
             frame[start:end] = bytes(frame[start:end]).translate(self.background_table)
 
-        grid = encode_grid(frame_seq, timestamp_ms)
+        grid = encode_grid(
+            frame_seq,
+            timestamp_ms,
+            finder_layout=self.finder_layout,
+        )
         origin_x = self.x + self.padding
         origin_y = self.y + self.padding
-        for row, col in ENCODED_CELLS:
+        for row, col in encoded_cells(self.finder_layout):
             table = self.black_table if grid[row][col] else self.white_table
             left = origin_x + col * self.cell
             top = origin_y + row * self.cell
@@ -356,6 +370,7 @@ def decode_case(
     frame_size = width * height
     seq_start = int(marker_config.get("frame_seq_start", 0))
     timestamp_start = int(marker_config.get("timestamp_start_ms", 0))
+    finder_layout = str(marker_config.get("finder_layout", FINDER_LAYOUT_FOUR))
     nominal = RasterProfile(
         x=float(marker_config.get("x", 24)),
         y=float(marker_config.get("y", 24)),
@@ -382,7 +397,11 @@ def decode_case(
             ) & UINT32_MASK
             decode_started = time.monotonic_ns()
             try:
-                result = decode_luma_frame(frame_rows(frame, width, height), nominal=nominal)
+                result = decode_luma_frame(
+                    frame_rows(frame, width, height),
+                    nominal=nominal,
+                    finder_layout=finder_layout,
+                )
                 decode_ms = (time.monotonic_ns() - decode_started) / 1_000_000
                 sample = {
                     "run_id": run_id,

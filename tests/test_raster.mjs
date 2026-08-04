@@ -1,14 +1,24 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ENCODED_CELLS, PAYLOAD_CELLS, encodeGrid } from '../src/js/ortm.js';
+import {
+  FINDER_LAYOUT_THREE,
+  PAYLOAD_CELLS,
+  encodeGrid,
+  encodedCells,
+} from '../src/js/ortm.js';
 import { DEFAULT_RASTER_PROFILE, buildReadRoi, decodeRgbaImage } from '../src/js/raster.js';
 
 function renderRgba(
   frameSeq,
   timestampMs,
   actual = DEFAULT_RASTER_PROFILE,
-  { backgroundAlpha = 1, cellAlpha = 1, striped = false } = {},
+  {
+    backgroundAlpha = 1,
+    cellAlpha = 1,
+    striped = false,
+    finderLayout = 'four',
+  } = {},
 ) {
   const width = 640;
   const height = 480;
@@ -22,7 +32,7 @@ function renderRgba(
     data[offset + 2] = value;
     data[offset + 3] = 255;
   }
-  const grid = encodeGrid(frameSeq, timestampMs);
+  const grid = encodeGrid(frameSeq, timestampMs, 0, finderLayout);
   const originX = actual.x + actual.padding;
   const originY = actual.y + actual.padding;
   const blendRect = (x0, y0, x1, y1, value, alpha) => {
@@ -37,7 +47,7 @@ function renderRgba(
   };
   const boxSize = 32 * actual.cell + actual.padding * 2;
   blendRect(actual.x, actual.y, actual.x + boxSize, actual.y + boxSize, 255, backgroundAlpha);
-  for (const [row, col] of ENCODED_CELLS) {
+  for (const [row, col] of encodedCells(finderLayout)) {
     const value = grid[row][col] ? 0 : 255;
     blendRect(
       originX + col * actual.cell,
@@ -125,4 +135,25 @@ test('fixed-ROI RGBA decoder reports CRC damage', () => {
 test('read ROI contains all configured candidates', () => {
   const roi = buildReadRoi();
   assert.deepEqual(roi, { x: 12, y: 12, width: 473, height: 473 });
+});
+
+test('fixed-ROI decoder reads a three-finder marker when configured', () => {
+  const timestampMs = 0x13572468;
+  const profile = {
+    ...DEFAULT_RASTER_PROFILE,
+    finderLayout: FINDER_LAYOUT_THREE,
+  };
+  const frame = renderRgba(654, timestampMs, profile, {
+    finderLayout: FINDER_LAYOUT_THREE,
+  });
+  const result = decodeRgbaImage(
+    frame.imageData,
+    frame.width,
+    frame.height,
+    timestampMs + 25,
+    { profile },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.frame_seq, 654);
+  assert.equal(result.latency_ms, 25);
 });

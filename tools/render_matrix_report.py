@@ -75,11 +75,30 @@ def interpretation(summary: dict[str, Any]) -> list[str]:
             "- The current low-impact rendering profile remains the practical default;",
             "  the alpha variants establish robustness headroom rather than a latency win.",
         ])
+    if matrix.get("name") == "finder-layout-formal":
+        lines.extend([
+            "- Omitting the bottom-right finder reduced encoded cells from 195 to",
+            "  179 (8.2%) without an observed recovery failure in this matrix.",
+            "- Decode p95 and actual bitrate remained effectively unchanged; the",
+            "  expected benefit is lower visual salience, not throughput or latency.",
+            "- The three-finder image requires an explicitly layout-aware decoder and",
+            "  must not be presented as backward-compatible ORTM v0 imagery.",
+        ])
     return lines
 
 
 def limitations(summary: dict[str, Any]) -> list[str]:
     matrix = summary["matrix"]
+    if matrix.get("name") == "finder-layout-formal":
+        return [
+            "- This run does not validate clock synchronization or optical accuracy.",
+            "- It uses fixed 720p geometry and a fixed-ROI decoder; it does not measure",
+            "  full-image detection, false positives, rotation, scale, or perspective.",
+            "- It does not cover camera content, packet loss, jitter, WebRTC buffering,",
+            "  browser presentation, or TURN relay behavior.",
+            "- The next step is a live camera/WebRTC comparison, followed by controlled",
+            "  translation, scale, rotation, and perspective stress tests.",
+        ]
     resolutions = {
         (variant.get("video", {}).get("width"), variant.get("video", {}).get("height"))
         for variant in matrix["variants"]

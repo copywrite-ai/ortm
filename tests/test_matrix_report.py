@@ -73,6 +73,29 @@ class MatrixReportTest(unittest.TestCase):
         self.assertIn("claim of equivalent visual quality", result)
         self.assertNotIn("opaque marker", result)
 
+    def test_finder_layout_report_states_compatibility_and_fixed_roi_limits(self) -> None:
+        summary = {
+            "matrix": {
+                "name": "finder-layout-formal",
+                "variants": [
+                    {"name": "four-finder"},
+                    {"name": "three-finder"},
+                ],
+            },
+            "overall": {
+                "expected_frames": 100,
+                "successful_frames": 100,
+                "success_percent": 100,
+            },
+            "aggregates": [{"decode_ms": {"p95": 2.0, "max": 2.5}}],
+        }
+        interpretation = " ".join(report_tool.interpretation(summary))
+        limits = " ".join(report_tool.limitations(summary))
+        self.assertIn("8.2%", interpretation)
+        self.assertIn("layout-aware decoder", interpretation)
+        self.assertIn("fixed-ROI decoder", limits)
+        self.assertNotIn("408-pixel", limits)
+
 
 if __name__ == "__main__":
     unittest.main()

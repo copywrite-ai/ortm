@@ -13,7 +13,13 @@ gi.require_version("Gst", "1.0")
 import cairo
 from gi.repository import Gst
 
-from ortm.codec import ENCODED_CELLS, GRID_SIZE, encode_grid
+from ortm.codec import (
+    FINDER_LAYOUT_FOUR,
+    GRID_SIZE,
+    encode_grid,
+    encoded_cells,
+    validate_finder_layout,
+)
 
 DEFAULT_BACKGROUND_ALPHA = 0.15
 DEFAULT_CELL_ALPHA = 0.65
@@ -41,6 +47,7 @@ class OrtmCairoOverlay:
         background_alpha: float = DEFAULT_BACKGROUND_ALPHA,
         cell_alpha: float = DEFAULT_CELL_ALPHA,
         border_alpha: float = DEFAULT_BORDER_ALPHA,
+        finder_layout: str = FINDER_LAYOUT_FOUR,
         initial_frame_seq: int = 0,
         clock_ms: Callable[[], int] | None = None,
         on_rendered: Callable[[RenderedFrame], None] | None = None,
@@ -52,6 +59,8 @@ class OrtmCairoOverlay:
         self.background_alpha = min(max(background_alpha, 0.0), 1.0)
         self.cell_alpha = min(max(cell_alpha, 0.0), 1.0)
         self.border_alpha = min(max(border_alpha, 0.0), 1.0)
+        validate_finder_layout(finder_layout)
+        self.finder_layout = finder_layout
         self.frame_seq = initial_frame_seq & 0xFFFF
         self.clock_ms = clock_ms or (lambda: time.time_ns() // 1_000_000)
         self.on_rendered = on_rendered
@@ -65,7 +74,11 @@ class OrtmCairoOverlay:
         frame_seq = self.frame_seq
         self.frame_seq = (self.frame_seq + 1) & 0xFFFF
         timestamp_ms = self.clock_ms()
-        grid = encode_grid(frame_seq, timestamp_ms & 0xFFFFFFFF)
+        grid = encode_grid(
+            frame_seq,
+            timestamp_ms & 0xFFFFFFFF,
+            finder_layout=self.finder_layout,
+        )
 
         context.save()
         try:
@@ -79,7 +92,7 @@ class OrtmCairoOverlay:
             origin_y = self.y + self.padding
             for bit, color in ((0, 1.0), (1, 0.0)):
                 context.set_source_rgba(color, color, color, self.cell_alpha)
-                for row, col in ENCODED_CELLS:
+                for row, col in encoded_cells(self.finder_layout):
                     if grid[row][col] != bit:
                         continue
                     context.rectangle(
