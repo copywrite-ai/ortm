@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--background-alpha", type=float, default=0.15)
     parser.add_argument("--cell-alpha", type=float, default=0.65)
+    parser.add_argument("--border-alpha", type=float, default=1.0)
     parser.add_argument("--sink", default="autovideosink sync=false")
     args = parser.parse_args()
 
@@ -47,6 +48,7 @@ def main() -> int:
         renderer=OrtmCairoOverlay(
             background_alpha=args.background_alpha,
             cell_alpha=args.cell_alpha,
+            border_alpha=args.border_alpha,
             on_rendered=report,
         ),
     )

@@ -30,3 +30,20 @@ renderer = attach_to_pipeline(pipeline)
 When using GStreamer's `whipclientsink`, configure its signaller endpoint and
 request video pad according to the installed plugin version. ORTM does not own
 the signaling or transport layer.
+
+## Sparse rendering
+
+The Cairo adapter can omit the background panel and outer border while retaining
+the encoded finder, timing, and payload cells:
+
+```python
+renderer = OrtmCairoOverlay(
+    background_alpha=0,
+    cell_alpha=0.70,
+    border_alpha=0,
+)
+```
+
+This reduces visual obstruction, but also makes decoding more dependent on the
+underlying video content and codec settings. Validate the selected geometry and
+alpha against representative moving backgrounds before deployment.

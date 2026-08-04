@@ -88,6 +88,20 @@ class GStreamerAdapterTest(unittest.TestCase):
         self.assertEqual(rendered[1].frame_seq, 1)
         self.assertIsNone(rendered[1].pts_ns)
 
+    def test_sparse_rendering_omits_background_and_border(self) -> None:
+        adapter = load_adapter()
+        renderer = adapter.OrtmCairoOverlay(
+            background_alpha=0,
+            cell_alpha=0.70,
+            border_alpha=0,
+            clock_ms=lambda: 123,
+        )
+        context = FakeContext()
+        renderer.draw(None, context, 0, None)
+
+        self.assertEqual(len(context.rectangles), len(ENCODED_CELLS))
+        self.assertEqual(renderer.border_alpha, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

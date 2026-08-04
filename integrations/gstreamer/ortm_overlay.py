@@ -17,6 +17,7 @@ from ortm.codec import ENCODED_CELLS, GRID_SIZE, encode_grid
 
 DEFAULT_BACKGROUND_ALPHA = 0.15
 DEFAULT_CELL_ALPHA = 0.65
+DEFAULT_BORDER_ALPHA = 1.0
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,7 @@ class OrtmCairoOverlay:
         padding: int = 12,
         background_alpha: float = DEFAULT_BACKGROUND_ALPHA,
         cell_alpha: float = DEFAULT_CELL_ALPHA,
+        border_alpha: float = DEFAULT_BORDER_ALPHA,
         initial_frame_seq: int = 0,
         clock_ms: Callable[[], int] | None = None,
         on_rendered: Callable[[RenderedFrame], None] | None = None,
@@ -49,6 +51,7 @@ class OrtmCairoOverlay:
         self.padding = padding
         self.background_alpha = min(max(background_alpha, 0.0), 1.0)
         self.cell_alpha = min(max(cell_alpha, 0.0), 1.0)
+        self.border_alpha = min(max(border_alpha, 0.0), 1.0)
         self.frame_seq = initial_frame_seq & 0xFFFF
         self.clock_ms = clock_ms or (lambda: time.time_ns() // 1_000_000)
         self.on_rendered = on_rendered
@@ -87,10 +90,11 @@ class OrtmCairoOverlay:
                     )
                 context.fill()
 
-            context.set_source_rgb(0, 0, 0)
-            context.set_line_width(2)
-            context.rectangle(self.x, self.y, self.box_size, self.box_size)
-            context.stroke()
+            if self.border_alpha > 0:
+                context.set_source_rgba(0, 0, 0, self.border_alpha)
+                context.set_line_width(2)
+                context.rectangle(self.x, self.y, self.box_size, self.box_size)
+                context.stroke()
         finally:
             context.restore()
 
