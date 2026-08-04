@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   FINDER_LAYOUT_THREE,
+  FINDER_LAYOUT_TWO_TOP,
   PAYLOAD_CELLS,
   encodeGrid,
   encodedCells,
@@ -156,4 +157,25 @@ test('fixed-ROI decoder reads a three-finder marker when configured', () => {
   assert.equal(result.ok, true);
   assert.equal(result.frame_seq, 654);
   assert.equal(result.latency_ms, 25);
+});
+
+test('fixed-ROI decoder reads a two-top marker when configured', () => {
+  const timestampMs = 0x24681357;
+  const profile = {
+    ...DEFAULT_RASTER_PROFILE,
+    finderLayout: FINDER_LAYOUT_TWO_TOP,
+  };
+  const frame = renderRgba(987, timestampMs, profile, {
+    finderLayout: FINDER_LAYOUT_TWO_TOP,
+  });
+  const result = decodeRgbaImage(
+    frame.imageData,
+    frame.width,
+    frame.height,
+    timestampMs + 19,
+    { profile },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.frame_seq, 987);
+  assert.equal(result.latency_ms, 19);
 });

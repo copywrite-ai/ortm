@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   PAYLOAD_CELLS,
   FINDER_LAYOUT_THREE,
+  FINDER_LAYOUT_TWO_TOP,
   OrtmDecodeError,
   crc16CcittFalse,
   decodeGrid,
@@ -63,4 +64,15 @@ test('three-finder layout requires a layout-aware decoder', () => {
   assert.equal(decoded.frameSeq, 321);
   assert.equal(decoded.timestampMs, 0x12345678);
   assert.equal(encodedCells(FINDER_LAYOUT_THREE).length, encodedCells().length - 16);
+});
+
+test('two-top layout requires a layout-aware decoder', () => {
+  const grid = encodeGrid(654, 0x89abcdef, 0, FINDER_LAYOUT_TWO_TOP);
+  assert.throws(() => decodeGrid(grid), (error) => (
+    error instanceof OrtmDecodeError && error.reason === 'structure-mismatch'
+  ));
+  const decoded = decodeGrid(grid, { finderLayout: FINDER_LAYOUT_TWO_TOP });
+  assert.equal(decoded.frameSeq, 654);
+  assert.equal(decoded.timestampMs, 0x89abcdef);
+  assert.equal(encodedCells(FINDER_LAYOUT_TWO_TOP).length, encodedCells().length - 32);
 });

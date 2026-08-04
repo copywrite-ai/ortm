@@ -14,17 +14,18 @@ Run the sparse 720p dynamic-background scenario with:
 make benchmark-minimal-720p
 ```
 
-The experimental three-finder branch compares the standard four-corner layout
-against a layout that omits only the bottom-right finder while preserving its
-reserved cells and the complete v0 payload map:
+The experimental finder-layout branch compares the standard four-corner layout
+against a three-finder layout and a two-top layout. All variants preserve all
+corner reservations and the complete v0 payload map:
 
 ```bash
 make benchmark-finder-layout-formal
 make benchmark-finder-layout-report
 ```
 
-The three-finder marker requires a layout-aware decoder and is not wire-image
-compatible with an ORTM v0 decoder expecting all four finders.
+The sparse-finder markers require a layout-aware decoder and are not wire-image
+compatible with an ORTM v0 decoder expecting all four finders. The two-top
+variant is restricted to fixed-ROI use because its finders are collinear.
 
 The committed baseline is a two-second smoke suite per background. It verifies
 the harness and catches gross regressions; it is not long enough for a

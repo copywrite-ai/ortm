@@ -7,6 +7,7 @@ from pathlib import Path
 from ortm.codec import (
     PAYLOAD_CELLS,
     FINDER_LAYOUT_THREE,
+    FINDER_LAYOUT_TWO_TOP,
     DecodeError,
     crc16_ccitt_false,
     decode_grid,
@@ -85,6 +86,20 @@ class CodecTest(unittest.TestCase):
         self.assertEqual(decoded.frame_seq, 321)
         self.assertEqual(decoded.timestamp_ms, 0x12345678)
         self.assertEqual(len(encoded_cells(FINDER_LAYOUT_THREE)), len(encoded_cells()) - 16)
+
+    def test_two_top_layout_requires_layout_aware_decoder(self) -> None:
+        grid = encode_grid(
+            654,
+            0x89ABCDEF,
+            finder_layout=FINDER_LAYOUT_TWO_TOP,
+        )
+        with self.assertRaisesRegex(DecodeError, "structure-mismatch"):
+            decode_grid(grid)
+
+        decoded = decode_grid(grid, finder_layout=FINDER_LAYOUT_TWO_TOP)
+        self.assertEqual(decoded.frame_seq, 654)
+        self.assertEqual(decoded.timestamp_ms, 0x89ABCDEF)
+        self.assertEqual(len(encoded_cells(FINDER_LAYOUT_TWO_TOP)), len(encoded_cells()) - 32)
 
 
 if __name__ == "__main__":

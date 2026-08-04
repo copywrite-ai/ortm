@@ -1,0 +1,39 @@
+{
+  "id": "ortm-v0-two-top-720p-experimental",
+  "protocol": "ORTM-v0-payload",
+  "experimental": true,
+  "finderLayout": "two-top",
+  "compatibility": "layout-aware-decoder-required",
+  "frame": {
+    "width": 1280,
+    "height": 720
+  },
+  "raster": {
+    "gridSize": 32,
+    "finderSize": 4,
+    "timingIndex": 4,
+    "x": 32,
+    "y": 32,
+    "cell": 8,
+    "padding": 16,
+    "boxSize": 288
+  },
+  "rendering": {
+    "backgroundAlpha": 0,
+    "cellAlpha": 0.70,
+    "borderAlpha": 0,
+    "antialias": false,
+    "borderWidth": 0
+  },
+  "payload": {
+    "mapping": "ORTM-v0",
+    "allCornerFinderCellsRemainReserved": true
+  },
+  "validation": {
+    "scales": [1.0],
+    "offsets": [0],
+    "minContrast": 32,
+    "maxFinderErrors": 8,
+    "maxTimingErrors": 10
+  }
+}

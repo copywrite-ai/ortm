@@ -80,6 +80,7 @@ class MatrixReportTest(unittest.TestCase):
                 "variants": [
                     {"name": "four-finder"},
                     {"name": "three-finder"},
+                    {"name": "two-top-finder"},
                 ],
             },
             "overall": {
@@ -92,7 +93,9 @@ class MatrixReportTest(unittest.TestCase):
         interpretation = " ".join(report_tool.interpretation(summary))
         limits = " ".join(report_tool.limitations(summary))
         self.assertIn("8.2%", interpretation)
+        self.assertIn("16.4%", interpretation)
         self.assertIn("layout-aware decoder", interpretation)
+        self.assertIn("collinear", interpretation)
         self.assertIn("fixed-ROI decoder", limits)
         self.assertNotIn("408-pixel", limits)
 

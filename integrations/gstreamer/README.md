@@ -61,3 +61,18 @@ renderer = OrtmCairoOverlay(
 
 The receiver must use the same finder layout. This mode preserves the ORTM v0
 payload cells but is not compatible with a decoder that validates four finders.
+
+The more aggressive fixed-ROI experiment keeps only the two top finders:
+
+```python
+renderer = OrtmCairoOverlay(
+    background_alpha=0,
+    cell_alpha=0.70,
+    border_alpha=0,
+    finder_layout="two-top",
+)
+```
+
+This layout keeps all four corner areas reserved, so the payload mapping remains
+unchanged. Its two finders are collinear, however, so it deliberately gives up
+geometric evidence needed for robust rotation, perspective, or full-image search.

@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import unittest
 
-from ortm.codec import FINDER_LAYOUT_THREE, PAYLOAD_CELLS, DecodeError
+from ortm.codec import (
+    FINDER_LAYOUT_THREE,
+    FINDER_LAYOUT_TWO_TOP,
+    PAYLOAD_CELLS,
+    DecodeError,
+)
 from ortm.raster import RasterProfile, decode_luma_frame, render_luma_frame
 
 
@@ -66,6 +71,19 @@ class RasterTest(unittest.TestCase):
         )
         self.assertEqual(result.marker.frame_seq, 456)
         self.assertEqual(result.marker.timestamp_ms, 0xAABBCCDD)
+
+    def test_two_top_raster_round_trip(self) -> None:
+        frame = render_luma_frame(
+            789,
+            0x10203040,
+            finder_layout=FINDER_LAYOUT_TWO_TOP,
+        )
+        result = decode_luma_frame(
+            frame,
+            finder_layout=FINDER_LAYOUT_TWO_TOP,
+        )
+        self.assertEqual(result.marker.frame_seq, 789)
+        self.assertEqual(result.marker.timestamp_ms, 0x10203040)
 
 
 if __name__ == "__main__":

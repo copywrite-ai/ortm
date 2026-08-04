@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "finder-layout-formal",
-  "description": "Compare four and three finder layouts at the validated sparse 720p profile while preserving the v0 payload map.",
+  "description": "Compare four, three, and two-top finder layouts at the validated sparse 720p profile while preserving the v0 payload map.",
   "base_scenario": "../scenarios/h264-720p60-2500k-minimal.json",
   "seed": 20260804,
   "repetitions": 5,
@@ -19,6 +19,13 @@
       "description": "Experimental layout omitting the bottom-right finder while retaining its reserved cells.",
       "marker": {
         "finder_layout": "three"
+      }
+    },
+    {
+      "name": "two-top-finder",
+      "description": "Experimental layout retaining only the two top finders while all four corner areas remain reserved.",
+      "marker": {
+        "finder_layout": "two-top"
       }
     }
   ]

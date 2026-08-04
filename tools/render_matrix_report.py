@@ -78,11 +78,15 @@ def interpretation(summary: dict[str, Any]) -> list[str]:
     if matrix.get("name") == "finder-layout-formal":
         lines.extend([
             "- Omitting the bottom-right finder reduced encoded cells from 195 to",
-            "  179 (8.2%) without an observed recovery failure in this matrix.",
+            "  179 (8.2%); retaining only the two top finders reduced them to 163",
+            "  (16.4%). No recovery failure was observed in this matrix.",
             "- Decode p95 and actual bitrate remained effectively unchanged; the",
             "  expected benefit is lower visual salience, not throughput or latency.",
-            "- The three-finder image requires an explicitly layout-aware decoder and",
+            "- The sparse finder images require an explicitly layout-aware decoder and",
             "  must not be presented as backward-compatible ORTM v0 imagery.",
+            "- The two-top finders are collinear. This layout is intended only for fixed",
+            "  ROI use and sacrifices geometric evidence needed for robust rotation,",
+            "  perspective, and full-image detection.",
         ])
     return lines
 

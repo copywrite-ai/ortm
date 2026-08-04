@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILE_PATH = ROOT / "profiles" / "ortm-v0-fixed-720p.json"
 MINIMAL_PROFILE_PATH = ROOT / "profiles" / "ortm-v0-minimal-720p.json"
 THREE_FINDER_PROFILE_PATH = ROOT / "profiles" / "ortm-v0-three-finder-720p.experimental.json"
+TWO_TOP_PROFILE_PATH = ROOT / "profiles" / "ortm-v0-two-top-720p.experimental.json"
 FIXTURE_PATH = ROOT / "fixtures" / "ortm-v0-fixed-720p.png"
 
 
@@ -67,6 +68,14 @@ class SenderProfileTest(unittest.TestCase):
         self.assertTrue(config["experimental"])
         self.assertEqual(config["finderLayout"], "three")
         self.assertEqual(config["compatibility"], "layout-aware-decoder-required")
+        self.assertEqual(config["raster"]["boxSize"], 288)
+
+    def test_two_top_profile_is_explicitly_experimental(self) -> None:
+        config = json.loads(TWO_TOP_PROFILE_PATH.read_text())
+        self.assertTrue(config["experimental"])
+        self.assertEqual(config["finderLayout"], "two-top")
+        self.assertEqual(config["compatibility"], "layout-aware-decoder-required")
+        self.assertTrue(config["payload"]["allCornerFinderCellsRemainReserved"])
         self.assertEqual(config["raster"]["boxSize"], 288)
 
 
