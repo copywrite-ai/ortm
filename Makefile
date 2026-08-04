@@ -1,4 +1,4 @@
-.PHONY: test test-python test-js vectors sender-conformance benchmark-smoke benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
+.PHONY: test test-python test-js vectors sender-conformance benchmark-smoke benchmark-minimal-720p benchmark-matrix-smoke benchmark-codec-smoke benchmark-geometry-exploratory benchmark-resolution-exploratory benchmark-resolution-normalized-exploratory benchmark-network-dry-run benchmark-matrix-report benchmark-codec-report benchmark-geometry-report benchmark-resolution-report benchmark-resolution-normalized-report
 
 test: test-python test-js
 
@@ -20,6 +20,12 @@ benchmark-smoke:
 	PYTHONPATH=src/python python3 tools/run_offline_benchmark.py \
 		--scenario benchmarks/scenarios/h264-540p60-2500k.json \
 		--output benchmark-results/h264-540p60-2500k \
+		--overwrite
+
+benchmark-minimal-720p:
+	PYTHONPATH=src/python python3 tools/run_offline_benchmark.py \
+		--scenario benchmarks/scenarios/h264-720p60-2500k-minimal.json \
+		--output benchmark-results/h264-720p60-2500k-minimal \
 		--overwrite
 
 benchmark-matrix-smoke:

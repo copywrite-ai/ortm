@@ -1,0 +1,38 @@
+{
+  "name": "h264-720p60-2500k-minimal",
+  "description": "Sparse ORTM v0 profile over dynamic 720p H.264 backgrounds.",
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "fps": 60,
+    "frames": 600,
+    "bitrate_kbps": 2500,
+    "key_int": 120,
+    "preset": "ultrafast"
+  },
+  "marker": {
+    "x": 32,
+    "y": 32,
+    "cell": 8,
+    "padding": 16,
+    "background_alpha": 0,
+    "cell_alpha": 0.70,
+    "border_alpha": 0,
+    "frame_seq_start": 1000,
+    "timestamp_start_ms": 305419896
+  },
+  "cases": [
+    {
+      "name": "stripes",
+      "background": "stripes"
+    },
+    {
+      "name": "moving-checker",
+      "background": "moving-checker"
+    },
+    {
+      "name": "snow",
+      "background": "snow"
+    }
+  ]
+}

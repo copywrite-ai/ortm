@@ -4,6 +4,16 @@ The offline benchmark renders deterministic ORTM frames, sends them through a
 real FFmpeg/libx264 encode/decode cycle, and decodes ORTM from the resulting
 pixels. It does not open a network connection and does not measure G2G latency.
 
+Background cases include flat content, static stripes, a moving checkerboard,
+and deterministic per-frame `snow`. The snow case is a codec pressure test; it
+is intentionally more complex than representative camera content.
+
+Run the sparse 720p dynamic-background scenario with:
+
+```bash
+make benchmark-minimal-720p
+```
+
 The committed baseline is a two-second smoke suite per background. It verifies
 the harness and catches gross regressions; it is not long enough for a
 publication-quality statistical claim. Formal runs must use the repetition and

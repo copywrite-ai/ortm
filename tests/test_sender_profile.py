@@ -10,6 +10,7 @@ from ortm.raster import RasterProfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_PATH = ROOT / "profiles" / "ortm-v0-fixed-720p.json"
+MINIMAL_PROFILE_PATH = ROOT / "profiles" / "ortm-v0-minimal-720p.json"
 FIXTURE_PATH = ROOT / "fixtures" / "ortm-v0-fixed-720p.png"
 
 
@@ -46,6 +47,19 @@ class SenderProfileTest(unittest.TestCase):
         self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
         width, height = struct.unpack(">II", data[16:24])
         self.assertEqual((width, height), (1280, 720))
+
+    def test_minimal_720p_profile_uses_validated_sparse_rendering(self) -> None:
+        config = json.loads(MINIMAL_PROFILE_PATH.read_text())
+        raster = config["raster"]
+        rendering = config["rendering"]
+
+        self.assertEqual(config["protocol"], "ORTM-v0")
+        self.assertEqual((raster["x"], raster["y"]), (32, 32))
+        self.assertEqual((raster["cell"], raster["padding"]), (8, 16))
+        self.assertEqual(raster["boxSize"], 288)
+        self.assertEqual(rendering["backgroundAlpha"], 0)
+        self.assertEqual(rendering["cellAlpha"], 0.70)
+        self.assertEqual(rendering["borderAlpha"], 0)
 
 
 if __name__ == "__main__":

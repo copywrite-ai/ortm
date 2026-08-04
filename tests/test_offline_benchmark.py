@@ -35,6 +35,7 @@ class OfflineBenchmarkTest(unittest.TestCase):
                 "padding": 12,
                 "background_alpha": 0.15,
                 "cell_alpha": 0.65,
+                "border_alpha": 1.0,
             },
             "cases": [{"name": "flat", "background": "flat"}],
         }
@@ -42,7 +43,7 @@ class OfflineBenchmarkTest(unittest.TestCase):
     def test_renderer_round_trip_for_each_background(self) -> None:
         renderer = benchmark.FrameRenderer(self.scenario)
         profile = RasterProfile()
-        for index, background in enumerate(("flat", "stripes", "moving-checker")):
+        for index, background in enumerate(("flat", "stripes", "moving-checker", "snow")):
             frame = renderer.render(background, index, 100 + index, 1000 + index)
             decoded = decode_luma_frame(
                 benchmark.frame_rows(frame, renderer.width, renderer.height),
@@ -50,6 +51,27 @@ class OfflineBenchmarkTest(unittest.TestCase):
             )
             self.assertEqual(decoded.marker.frame_seq, 100 + index)
             self.assertEqual(decoded.marker.timestamp_ms, 1000 + index)
+
+    def test_sparse_marker_decodes_on_moving_background(self) -> None:
+        self.scenario["marker"].update({
+            "background_alpha": 0,
+            "cell_alpha": 0.70,
+            "border_alpha": 0,
+        })
+        renderer = benchmark.FrameRenderer(self.scenario)
+        frame = renderer.render("moving-checker", 7, 321, 123456)
+        decoded = decode_luma_frame(
+            benchmark.frame_rows(frame, renderer.width, renderer.height),
+            nominal=RasterProfile(),
+        )
+        self.assertEqual(decoded.marker.frame_seq, 321)
+        self.assertEqual(decoded.marker.timestamp_ms, 123456)
+
+    def test_snow_background_is_deterministic_and_changes_per_frame(self) -> None:
+        renderer = benchmark.FrameRenderer(self.scenario)
+        first = renderer.background_frame("snow", 10)
+        self.assertEqual(first, renderer.background_frame("snow", 10))
+        self.assertNotEqual(first, renderer.background_frame("snow", 11))
 
     def test_percentile_interpolates(self) -> None:
         self.assertEqual(benchmark.percentile([1, 2, 3, 4], 0.5), 2.5)

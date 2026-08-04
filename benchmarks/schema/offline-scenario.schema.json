@@ -33,6 +33,7 @@
         "padding": { "type": "integer", "minimum": 0 },
         "background_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
         "cell_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "border_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
         "frame_seq_start": { "type": "integer", "minimum": 0, "maximum": 65535 },
         "timestamp_start_ms": { "type": "integer", "minimum": 0, "maximum": 4294967295 }
       },
@@ -46,7 +47,7 @@
         "required": ["name", "background"],
         "properties": {
           "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
-          "background": { "enum": ["flat", "stripes", "moving-checker"] }
+          "background": { "enum": ["flat", "stripes", "moving-checker", "snow"] }
         },
         "additionalProperties": false
       }

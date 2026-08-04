@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import random
 import re
 import shutil
 import subprocess
@@ -103,7 +104,9 @@ def load_scenario(path: Path) -> dict[str, Any]:
         raise ValueError("marker.cell must be positive")
     if int(marker.get("padding", -1)) < 0:
         raise ValueError("marker.padding must be non-negative")
-    for key in ("background_alpha", "cell_alpha"):
+    for key in ("background_alpha", "cell_alpha", "border_alpha"):
+        if key == "border_alpha" and key not in marker:
+            continue
         value = float(marker.get(key, -1))
         if not 0 <= value <= 1:
             raise ValueError(f"marker.{key} must be between 0 and 1")
@@ -114,7 +117,7 @@ def load_scenario(path: Path) -> dict[str, Any]:
         name = str(case.get("name", ""))
         if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", name):
             raise ValueError(f"case name is not a safe file name: {name!r}")
-        if case.get("background") not in ("flat", "stripes", "moving-checker"):
+        if case.get("background") not in ("flat", "stripes", "moving-checker", "snow"):
             raise ValueError(f"unsupported background {case.get('background')!r}")
         case_names.append(name)
     if len(case_names) != len(set(case_names)):
@@ -144,6 +147,8 @@ class FrameRenderer:
         cell_alpha = float(marker.get("cell_alpha", 0.65))
         self.black_table = blend_table(0, cell_alpha)
         self.white_table = blend_table(255, cell_alpha)
+        self.border_alpha = float(marker.get("border_alpha", 1.0))
+        self.border_table = blend_table(0, self.border_alpha)
 
     def background_frame(self, name: str, frame_index: int) -> bytearray:
         if name == "flat":
@@ -170,6 +175,10 @@ class FrameRenderer:
                 frame[start : start + self.width] = row_patterns[parity]
             return frame
 
+        if name == "snow":
+            generator = random.Random(0x4F52544D ^ frame_index)
+            return bytearray(generator.randbytes(self.width * self.height))
+
         raise ValueError(f"unsupported background {name!r}")
 
     def render(self, background: str, frame_index: int, frame_seq: int, timestamp_ms: int) -> bytes:
@@ -191,14 +200,18 @@ class FrameRenderer:
                 end = start + self.cell
                 frame[start:end] = bytes(frame[start:end]).translate(table)
 
-        for y in range(self.y, self.y + self.box_size):
-            row_start = y * self.width
-            if y < self.y + 2 or y >= self.y + self.box_size - 2:
-                frame[row_start + self.x : row_start + self.x + self.box_size] = b"\0" * self.box_size
-            else:
-                frame[row_start + self.x : row_start + self.x + 2] = b"\0\0"
-                right = row_start + self.x + self.box_size - 2
-                frame[right : right + 2] = b"\0\0"
+        if self.border_alpha > 0:
+            for y in range(self.y, self.y + self.box_size):
+                row_start = y * self.width
+                if y < self.y + 2 or y >= self.y + self.box_size - 2:
+                    start = row_start + self.x
+                    end = start + self.box_size
+                    frame[start:end] = bytes(frame[start:end]).translate(self.border_table)
+                else:
+                    left = row_start + self.x
+                    frame[left : left + 2] = bytes(frame[left : left + 2]).translate(self.border_table)
+                    right = row_start + self.x + self.box_size - 2
+                    frame[right : right + 2] = bytes(frame[right : right + 2]).translate(self.border_table)
         return bytes(frame)
 
 
